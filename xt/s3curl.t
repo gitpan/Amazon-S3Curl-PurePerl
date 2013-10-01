@@ -1,10 +1,10 @@
 use strict;
 use warnings FATAL => 'all';
-use Test::More;
+use Test::More tests => 11;
 use Amazon::S3Curl::PurePerl;
 use File::Temp;
 use File::Spec;
-
+use IPC::System::Simple qw[ system ];
 my $download_file = File::Temp->new;
 my $upload_file = File::Temp->new;
 $upload_file->autoflush(1);
@@ -34,6 +34,7 @@ ok my $downloader = Amazon::S3Curl::PurePerl->new(
   ),
   "Amazon::S3Curl::PurePerl instantiated";
 ok $downloader->download;
+ok(  system( @{ $downloader->download_cmd } ) == 0,"System call returned 0" );
 {
     local $/ = undef;
     open(my $fh_left, "<", $download_file ) or die "$@ $!";
@@ -56,5 +57,3 @@ my $ret2 = system(@{ $downloader->download_cmd });
 diag $ret1;
 ok !$ret1,"uploaded using upload_cmd => system";
 ok !$ret2,"downloaded using download_cmd => system";
-
-done_testing;

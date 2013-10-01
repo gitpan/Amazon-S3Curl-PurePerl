@@ -21,4 +21,4 @@ requires:
   Module::Runtime: 0.013
   Moo: 1.003000
   Test::More: 0.98
-version: 0.01
+version: 0.02

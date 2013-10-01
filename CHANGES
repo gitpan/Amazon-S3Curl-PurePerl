@@ -1,0 +1,10 @@
+Revision history for perl module Amazon::S3Curl::PurePerl
+
+0.02 2013-10-01
+
+    - Added CHANGES file
+    - doc patches
+
+0.01 2013-10-01
+
+    - first release
