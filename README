@@ -1,7 +1,7 @@
 
 
 This archive contains the distribution Amazon-S3Curl-PurePerl,
-version 0.02:
+version 0.03:
 
   Amazon::S3Curl::PurePerl - Pure Perl s3 helper/downloader.
 

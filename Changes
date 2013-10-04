@@ -1,5 +1,9 @@
 Revision history for perl module Amazon::S3Curl::PurePerl
 
+0.03 2013-10-04
+
+    - url_exists method added.
+
 0.02 2013-10-01
 
     - Added CHANGES file

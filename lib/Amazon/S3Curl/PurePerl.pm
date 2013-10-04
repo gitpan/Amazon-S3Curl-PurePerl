@@ -4,7 +4,7 @@ use strict;
 use warnings FATAL => 'all';
 use Module::Runtime qw[ require_module ];
 
-our $VERSION = "0.02";
+our $VERSION = "0.03";
 $VERSION = eval $VERSION;
 
 #For instances when you want to use s3, but don't want to install anything. ( and you have curl )
@@ -40,7 +40,7 @@ set_logger(
 
 has curl => (
     is      => 'ro',
-    default => sub { 'curl' }    #maybe your curl isnt in path?
+    default => sub { 'curl' }    #maybe your curl isnt in PATH?
 );
 
 for (
@@ -59,7 +59,7 @@ for (
 
 has local_file => ( 
     is => 'ro',
-    required => 1,
+    required => 0,
     predicate => 1,
 );
 
@@ -68,12 +68,8 @@ has static_http_date => (
     required => 0,
 );
 
-has http_date => (
-    is => 'lazy',
-    clearer => 1,
-);
 
-sub _build_http_date {
+sub http_date {
     POSIX::strftime( "%a, %d %b %Y %H:%M:%S +0000", gmtime );
 }
 
@@ -85,7 +81,6 @@ sub _req {
     my $to_sign  = $url;
     $resource = "http://s3.amazonaws.com" . $resource;
     my $keyId       = $self->aws_access_key;
-    $self->clear_http_date;
     my $httpDate    = $self->static_http_date || $self->http_date;
     my $contentMD5  = "";
     my $contentType = "";
@@ -133,8 +128,25 @@ sub upload_cmd {
 
 sub delete_cmd {
     my $args = shift->_req('DELETE');
-    splice( @$args, $#$args, 0, -X  => 'DELETE' );
+    splice( @$args, $#$args, 0, qw[ -X DELETE ] );
     return $args;
+}
+
+sub head_cmd {
+    my $args = shift->_req('HEAD');
+    splice( @$args, $#$args, 0, qw[ -I -X HEAD ] );
+    return $args;
+}
+
+sub url_exists {
+    my $self = shift;
+    my @args = grep { !/-f/ } @{ $self->head_cmd }; #take out fail mode, want to parse and look for the 404.
+    log_info { "running " . join( " ", @_ ) } @args;
+    my @output = capture( @args );
+    die "no output received!" unless @output;
+    return 1 if $output[0] =~ /200 OK/;
+    return 0 if $output[0] =~ /404 Not Found/;
+    die "url_exists did not find a 200 or 404: $output[0]";
 }
 
 sub _exec {
@@ -159,6 +171,10 @@ sub delete {
     return shift->_exec("delete");
 }
 
+sub head {
+    return shift->_exec("head");
+}
+
 sub _local_file_required {
     my $method = shift;
     sub {
@@ -178,7 +194,7 @@ Amazon::S3Curl::PurePerl - Pure Perl s3 helper/downloader.
 
 =head1 VERSION
 
-version 0.02
+version 0.03
 
 =head1 DESCRIPTION
 
@@ -268,9 +284,14 @@ Delete url.
 
 =head2 upload_cmd
 
-Just get the command to execute, don't actually execute it:
+Just get the command to execute in the form of an arrayref, don't actually execute it:
+
     my $cmd = $s3curl->download_cmd;
     system(@$cmd);
+
+=head2 url_exists
+
+Check to see if a given url returns a 404 or 200. return 1 if 200, return 0 if 404, die otherwise.
 
 =head1 LICENSE
 

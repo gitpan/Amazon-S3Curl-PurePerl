@@ -1,6 +1,6 @@
 use strict;
 use warnings FATAL => 'all';
-use Test::More tests => 11;
+use Test::More tests => 15;
 use Amazon::S3Curl::PurePerl;
 use File::Temp;
 use File::Spec;
@@ -26,7 +26,9 @@ my %pp_args = (
 ok my $uploader = Amazon::S3Curl::PurePerl->new(%pp_args),
   "instantiated uploader";
 
+ok !$uploader->url_exists, "file does not exist yet.";
 ok $uploader->upload, "uploaded file";
+ok $uploader->url_exists, "file exists.";
 
 ok my $downloader = Amazon::S3Curl::PurePerl->new(
     %pp_args, 
@@ -54,6 +56,8 @@ eval {
 ok $@, "died without local_file param.";
 my $ret1 = system(@{ $uploader->upload_cmd });
 my $ret2 = system(@{ $downloader->download_cmd });
+ok $downloader->delete, "delete remote file";
+ok !$downloader->url_exists, "file is gone (404)";
 diag $ret1;
 ok !$ret1,"uploaded using upload_cmd => system";
 ok !$ret2,"downloaded using download_cmd => system";
