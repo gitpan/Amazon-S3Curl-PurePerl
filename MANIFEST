@@ -8,4 +8,5 @@ dist.ini
 lib/Amazon/S3Curl/PurePerl.pm
 lib/Amazon/S3Curl/PurePerl/Digest/HMAC.pm
 t/s3curl-no-network.t
+xt/hmac.t
 xt/s3curl.t

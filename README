@@ -1,11 +1,11 @@
 
 
 This archive contains the distribution Amazon-S3Curl-PurePerl,
-version 0.03:
+version 0.04_01:
 
   Amazon::S3Curl::PurePerl - Pure Perl s3 helper/downloader.
 
-This software is Copyright (c) 2013 by Samuel Kaufman.
+This software is Copyright (c) 2014 by Samuel Kaufman.
 
 This is free software, licensed under:
 

@@ -4,12 +4,12 @@ use strict;
 use warnings FATAL => 'all';
 use Module::Runtime qw[ require_module ];
 
-our $VERSION = "0.03";
+our $VERSION = "0.04_01";
 $VERSION = eval $VERSION;
 
 #For instances when you want to use s3, but don't want to install anything. ( and you have curl )
 #Amazon S3 Authentication Tool for Curl
-#Copyright 2006-2010 Amazon.com, Inc. or its affiliates. All Rights Reserved. 
+#Copyright 2006-2010 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 use Moo;
 use POSIX;
 use File::Spec;
@@ -18,7 +18,7 @@ use Log::Contextual::SimpleLogger;
 use Digest::SHA::PurePerl;
 use MIME::Base64 qw(encode_base64);
 use IPC::System::Simple qw[ capture ];
-our $DIGEST_HMAC;
+my $DIGEST_HMAC;
 BEGIN {
     eval {
         require_module("Digest::HMAC");
@@ -47,7 +47,6 @@ for (
     qw[
     aws_access_key
     aws_secret_key
-    url
     ] )
 {
     has $_ => (
@@ -57,7 +56,15 @@ for (
 
 }
 
-has local_file => ( 
+has url => (
+    is => 'ro',
+    required => 1,
+    isa => sub {
+        $_[0] =~ m|^/| or die "$_[0] is not a relative url. Should be /bucketname/file"
+      },
+);
+
+has local_file => (
     is => 'ro',
     required => 0,
     predicate => 1,
@@ -68,6 +75,15 @@ has static_http_date => (
     required => 0,
 );
 
+has s3_scheme_host_url => (
+    is => 'ro',
+    lazy => 1,
+    default => sub {
+        my $env_var = $ENV{AMAZON_S3CURL_PUREPERL_SCHEME_HOST};
+        return $env_var if defined $env_var;
+        return 'http://s3.amazonaws.com'
+    }
+);
 
 sub http_date {
     POSIX::strftime( "%a, %d %b %Y %H:%M:%S +0000", gmtime );
@@ -77,9 +93,8 @@ sub _req {
     my ( $self, $method, $url ) = @_;
     die "method required" unless $method;
     $url ||= $self->url;
-    my $resource = $url;
     my $to_sign  = $url;
-    $resource = "http://s3.amazonaws.com" . $resource;
+    my $resource = sprintf( "%s%s" , $self->s3_scheme_host_url, $url );
     my $keyId       = $self->aws_access_key;
     my $httpDate    = $self->static_http_date || $self->http_date;
     my $contentMD5  = "";
@@ -194,11 +209,11 @@ Amazon::S3Curl::PurePerl - Pure Perl s3 helper/downloader.
 
 =head1 VERSION
 
-version 0.03
+version 0.04_01
 
 =head1 DESCRIPTION
 
-This software is designed to run in low dependency situations. 
+This software is designed to run in low dependency situations.
 You need curl, and you need perl ( If you are on linux, you probably have perl whether you know it or not ).
 
 Maybe you're bootstrapping a system from s3,
@@ -213,9 +228,9 @@ or downloading software to a host where you can't/don't want to install anything
             url            => "/mybootstrap-files/myapp.tgz"
     });
     $s3curl->download;
-    
+
 Using L<Object::Remote>:
-    
+
     use Object::Remote;
     my $conn = Object::Remote->connect("webserver-3");
 
@@ -263,19 +278,19 @@ Constructor, provided by Moo.
 =head2 download
 
     $s3curl->download;
-    
+
 download url to local_file.
 
 =head2 upload
 
     $s3curl->upload;
-    
+
 Upload local_file to url.
 
 =head2 delete
 
     $s3curl->delete;
-    
+
 Delete url.
 
 =head2 delete_cmd
@@ -299,7 +314,7 @@ This library is free software and may be distributed under the same terms as per
 
 =head1 AUTHOR AND CONTRIBUTORS
 
-This distribution was 
+This distribution was
 adapted by Samuel Kaufman L<skaufman@cpan.org> from the L<Amazon S3 Authentication Tool for Curl|http://aws.amazon.com/code/128>
 
    Amazon S3 Authentication Tool for Curl
