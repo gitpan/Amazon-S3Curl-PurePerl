@@ -1,6 +1,6 @@
 Revision history for perl module Amazon::S3Curl::PurePerl
 
-0.05 2014-03-17
+0.051 2014-03-17
 
     - https by default
 
