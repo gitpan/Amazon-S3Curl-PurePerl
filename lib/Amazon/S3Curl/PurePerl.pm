@@ -81,7 +81,7 @@ has s3_scheme_host_url => (
     default => sub {
         my $env_var = $ENV{AMAZON_S3CURL_PUREPERL_SCHEME_HOST};
         return $env_var if defined $env_var;
-        return 'http://s3.amazonaws.com'
+        return 'https://s3.amazonaws.com'
     }
 );
 
@@ -209,7 +209,7 @@ Amazon::S3Curl::PurePerl - Pure Perl s3 helper/downloader.
 
 =head1 VERSION
 
-version 0.04_01
+version 0.05
 
 =head1 DESCRIPTION
 

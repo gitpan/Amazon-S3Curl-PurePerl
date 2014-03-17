@@ -1,5 +1,9 @@
 Revision history for perl module Amazon::S3Curl::PurePerl
 
+0.05 2014-03-17
+
+    - https by default
+
 0.04 2014-03-04
 
     - added in support for $ENV{AMAZON_S3CURL_PUREPERL_SCHEME_HOST}, instead of hardcoded 'http://s3.amazonaws.com'
