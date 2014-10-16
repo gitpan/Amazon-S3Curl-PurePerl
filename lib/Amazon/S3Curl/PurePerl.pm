@@ -1,10 +1,12 @@
 package Amazon::S3Curl::PurePerl;
+
 #ABSTRACT: Amazon::S3Curl::PurePerl - Pure Perl s3 helper/downloader.
 use strict;
-use warnings FATAL => 'all';
+use warnings;
+
 use Module::Runtime qw[ require_module ];
 
-our $VERSION = "0.051";
+our $VERSION = "0.052";
 $VERSION = eval $VERSION;
 
 #For instances when you want to use s3, but don't want to install anything. ( and you have curl )
@@ -114,6 +116,8 @@ sub _req {
         -H => "content-type: $contentType",
         "-L",
         "-f",
+        '--no-sslv2',
+        '--no-sslv3',
         $resource,
     ];
 }
@@ -209,7 +213,7 @@ Amazon::S3Curl::PurePerl - Pure Perl s3 helper/downloader.
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 DESCRIPTION
 

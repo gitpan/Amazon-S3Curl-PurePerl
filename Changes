@@ -1,5 +1,9 @@
 Revision history for perl module Amazon::S3Curl::PurePerl
 
+0.052 2014-10-16
+
+    - explicitly disallow SSL3 and SSL2. ( in response to POODLE )
+
 0.051 2014-03-17
 
     - https by default
